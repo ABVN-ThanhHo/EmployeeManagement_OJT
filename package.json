@@ -24,7 +24,42 @@
   },
   "cds": {
     "requires": {
+      "[development]": {
+        "auth": {
+          "kind": "basic",
+          "users": {
+            "selina": {
+              "roles": [
+                "Admin"
+              ]
+            },
+            "luna": {
+              "roles": [
+                "Admin"
+              ]
+            },
+            "haha": {
+              "roles": [
+                "Admin"
+              ]
+            },
+            "jame": {
+              "roles": [
+                "Viewer"
+              ]
+            },
+            "john": {
+              "roles": [
+                "Viewer"
+              ]
+            }
+          }
+        }
+      },
       "[production]": {
+        "auth": "xsuaa"
+      },
+      "[hybrid]": {
         "auth": "xsuaa"
       }
     }
