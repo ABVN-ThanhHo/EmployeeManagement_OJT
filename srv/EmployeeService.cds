@@ -32,8 +32,6 @@ service EmployeeService {
     }]
     entity Departments as projection on db.Departments;
 
-    // Calculate Salary
-    function calculateSalary() returns Decimal(10, 2);
     // Get user login information
     function me()              returns {
         id    : String;

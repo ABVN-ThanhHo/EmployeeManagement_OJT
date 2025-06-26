@@ -9,6 +9,7 @@ modules:
   requires:
   - name: employeeManagement_OJT-auth
   - name: employeeManagement_OJT-db
+  - name: employeeManagement_OJT-destination
   provides:
   - name: srv-api
     properties:
@@ -18,13 +19,6 @@ modules:
     instances: 1
   build-parameters:
     builder: npm-ci
-- name: employeeManagement_OJT-db-deployer
-  type: hdb
-  path: gen/db
-  requires:
-  - name: employeeManagement_OJT-db
-  parameters:
-    buildpack: nodejs_buildpack
 - name: employeeManagement_OJT
   type: approuter.nodejs
   path: app/router
@@ -36,12 +30,8 @@ modules:
       name: srv-api
       url: ~{srv-url}
   - name: employeeManagement_OJT-auth
-  - name: employeeManagement_OJT-destination-service
-    group: destinations
-    properties:
-      forwardAuthToken: false
-      name: ui5
-      url: https://ui5.sap.com
+  - name: employeeManagement_OJT-destination
+  - name: employeeManagement_OJT-html5-runtime
   provides:
   - name: app-api
     properties:
@@ -51,20 +41,71 @@ modules:
     disk-quota: 256M
     keep-existing-routes: true
     memory: 256M
-- name: employeeManagement_OJT-app-content
-  type: com.sap.application.content
-  path: .
+- name: employeeManagement_OJT-db-deployer
+  type: hdb
+  path: gen/db
   requires:
-  - name: employeeManagement_OJT-repo-host
+  - name: employeeManagement_OJT-db
+  parameters:
+    buildpack: nodejs_buildpack
+- name: employeeManagement_OJT-app-deployer
+  type: com.sap.application.content
+  path: gen
+  requires:
+  - name: employeeManagement_OJT-html5-repo-host
     parameters:
       content-target: true
   build-parameters:
-    build-result: resources
+    build-result: app/
     requires:
+    - artifacts:
+      - employee_management.zip
+      name: employeeManagement_OJTemployee_management
+      target-path: app/
     - artifacts:
       - employeemanagement.zip
       name: employeemanagement
-      target-path: resources/
+      target-path: app/
+- name: employeeManagement_OJTemployee_management
+  type: html5
+  path: app/employee_management
+  build-parameters:
+    build-result: dist
+    builder: custom
+    commands:
+    - npm install
+    - npm run build:cf
+    supported-platforms: []
+- name: employeeManagement_OJT-destination-content
+  type: com.sap.application.content
+  requires:
+  - name: employeeManagement_OJT-destination
+    parameters:
+      content-target: true
+  - name: employeeManagement_OJT-html5-repo-host
+    parameters:
+      service-key:
+        name: employeeManagement_OJT-html5-repo-host-key
+  - name: employeeManagement_OJT-auth
+    parameters:
+      service-key:
+        name: employeeManagement_OJT-auth-key
+  parameters:
+    content:
+      instance:
+        destinations:
+        - Name: employeeManagement_OJT_html_repo_host
+          ServiceInstanceName: employeeManagement_OJT-html5-service
+          ServiceKeyName: employeeManagement_OJT-html5-repo-host-key
+          sap.cloud.service: employeeManagement_OJT
+        - Authentication: OAuth2UserTokenExchange
+          Name: employeeManagement_OJT_uaa
+          ServiceInstanceName: employeeManagement_OJT-xsuaa-service
+          ServiceKeyName: employeeManagement_OJT-auth-key
+          sap.cloud.service: employeeManagement_OJT
+        existing_destinations_policy: update
+  build-parameters:
+    no-source: true
 - name: employeemanagement
   type: html5
   path: app/employee_management
@@ -87,6 +128,7 @@ resources:
       xsappname: employeeManagement_OJT-${org}-${space}
     path: ./xs-security.json
     service: xsuaa
+    service-name: employeeManagement_OJT-xsuaa-service
     service-plan: application
   requires:
   - name: app-api
@@ -95,30 +137,49 @@ resources:
   parameters:
     service: hana
     service-plan: hdi-shared
-- name: employeeManagement_OJT-repo-host
-  type: org.cloudfoundry.managed-service
-  parameters:
-    service: html5-apps-repo
-    service-name: employeeManagement_OJT-html5-service
-    service-plan: app-host
-- name: employeeManagement_OJT-destination-service
+- name: employeeManagement_OJT-destination
   type: org.cloudfoundry.managed-service
   parameters:
     config:
-      HTML5Runtime_enabled: false
+      HTML5Runtime_enabled: true
       init_data:
         instance:
           destinations:
+          - Authentication: NoAuthentication
+            HTML5.DynamicDestination: true
+            HTML5.ForwardAuthToken: true
+            Name: srv-api
+            ProxyType: Internet
+            Type: HTTP
+            URL: ~{srv-api/srv-url}
           - Authentication: NoAuthentication
             Name: ui5
             ProxyType: Internet
             Type: HTTP
             URL: https://ui5.sap.com
+          - Authentication: NoAuthentication
+            HTML5.DynamicDestination: true
+            HTML5.ForwardAuthToken: true
+            Name: employeeManagement_OJT-srv-api
+            ProxyType: Internet
+            Type: HTTP
+            URL: ~{srv-api/srv-url}
           existing_destinations_policy: update
-      version: 1.0.0
     service: destination
-    service-name: employeeManagement_OJT-destination-service
     service-plan: lite
+  requires:
+  - name: srv-api
+- name: employeeManagement_OJT-html5-repo-host
+  type: org.cloudfoundry.managed-service
+  parameters:
+    service: html5-apps-repo
+    service-name: employeeManagement_OJT-html5-service
+    service-plan: app-host
+- name: employeeManagement_OJT-html5-runtime
+  type: org.cloudfoundry.managed-service
+  parameters:
+    service: html5-apps-repo
+    service-plan: app-runtime
 parameters:
   deploy_mode: html5-repo
   enable-parallel-deployments: true

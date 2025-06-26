@@ -21,7 +21,7 @@ entity Employees : managed {
         gender      : String(10);
         email       : String @mandatory;
         hireDate    : Date   @mandatory;
-        salary      : Decimal(10,2) @readonly; 
+        salary      : Decimal(10,2); 
         role        : Association to Roles;
         department  : Association to Departments;
 }

@@ -63,7 +63,8 @@
         }
       },
       "[production]": {
-        "auth": "xsuaa"
+        "auth": "xsuaa",
+        "db": "hana"
       },
       "[hybrid]": {
         "auth": "xsuaa"

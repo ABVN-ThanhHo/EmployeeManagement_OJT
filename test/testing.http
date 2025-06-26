@@ -47,15 +47,17 @@ Authorization: Basic selina:
 ###
 
 ### Update employee's last name
-PATCH {{baseUrl}}/employee/Employees('013684cf-1726-44fa-a061-e93f7f42e8cc')
+PATCH {{baseUrl}}/employee/Employees('e1111111-e111-4111-8111-e11111111111')
 Content-Type: application/json
 Authorization: Basic selina:
 
 {
-  "firstName": "Selinaaaaa",
-  "lastName": "Tran",
-  "email": "thaho@example.com",
-  "hireDate": "2020-03-01"
+  "firstName": "Alice",
+  "lastName": "Smith",
+  "email": "alice.smith@example.com",
+  "hireDate": "2022-05-18",
+  "role_ID": "22222222-2222-2222-2222-222222222222",
+  "salary": 73000
 }
 
 ###
