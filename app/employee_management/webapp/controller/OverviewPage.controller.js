@@ -56,6 +56,7 @@ sap.ui.define(
           oView.setModel(oFilterModel, "FilterModel");
         },
   
+        // On press item in table
         onItemPress: function (oEvent) {
           const oRouter = this.getOwnerComponent().getRouter();
   
@@ -185,9 +186,8 @@ sap.ui.define(
         onFilterChange: function () {
           const oView = this.getView();
           const oTable = oView.byId("employeeTable");
-          const oFilterModel = oView.getModel("FilterModel");
-          console.log(oFilterModel);
   
+          // Get selected key
           const sRoleId = oView.byId("levelFilter").getSelectedKey();
           const sDeptId = oView.byId("levelFilter2").getSelectedKey();
   

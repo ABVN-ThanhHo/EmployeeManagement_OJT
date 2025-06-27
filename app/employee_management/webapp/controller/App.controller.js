@@ -3,7 +3,7 @@ sap.ui.define(["sap/ui/core/mvc/Controller"], (BaseController) => {
 
   return BaseController.extend("employeemanagement.controller.App", {
     onInit() {
-      // Check user login
+      // Check role user login
       const oUserModel = this.getOwnerComponent().getModel("userLoginModel");
       const roles = Object.keys(oUserModel.getData().roles || {});
 
@@ -12,6 +12,7 @@ sap.ui.define(["sap/ui/core/mvc/Controller"], (BaseController) => {
       }
     },
 
+    // Navigate to Overview page
     onNavToOverview: function () {
       this.getOwnerComponent().getRouter().navTo("OverviewPage");
     },
