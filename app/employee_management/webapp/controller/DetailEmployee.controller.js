@@ -224,8 +224,9 @@ sap.ui.define(
 
         aFields.forEach(function (oField) {
           const sValue = oField.getValue?.() || oField.getSelectedKey?.();
+          let value = sValue.trim();
 
-          if (!sValue) {
+          if (!value) {
             oField.setValueState("Error");
             oField.setValueStateText("This field is required");
             bValid = false;
@@ -260,14 +261,16 @@ sap.ui.define(
 
       // Check email exists
       onValidateEmail: async function () {
-        const sEmail = this.byId("email").getValue().trim();  
+        const sEmail = this.byId("email").getValue().trim();
         const oEmployeeDetail = this.getView().getModel("EmployeeDetail");
         const sCurrentEmpID = oEmployeeDetail.getProperty("/ID");
         const oModel = this.getOwnerComponent().getModel("EmployeeModel");
         let emailExists = false;
-      
+
         try {
-          const aContexts = await oModel.bindList("/Employees").requestContexts();
+          const aContexts = await oModel
+            .bindList("/Employees")
+            .requestContexts();
           const bExists = aContexts.some((oContext) => {
             const oEmp = oContext.getObject();
             return (
@@ -275,7 +278,7 @@ sap.ui.define(
               oEmp.ID !== sCurrentEmpID
             );
           });
-      
+
           if (bExists) {
             this.byId("email").setValueState("Error");
             this.byId("email").setValueStateText("This email already exists.");
@@ -333,12 +336,12 @@ sap.ui.define(
           oView.byId("email").setValueState("None");
         }
 
-         // Check email exist
-         const checkMail = await this.onValidateEmail();
-         if (!checkMail) {
-           return
-         }
-        
+        // Check email exist
+        const checkMail = await this.onValidateEmail();
+        if (!checkMail) {
+          return;
+        }
+
         // Calculate Salary
         this.onCalculateSalary();
 

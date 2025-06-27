@@ -45,6 +45,7 @@ sap.ui.define(
         oUploader.getFocusDomRef().click();
       },
 
+      // Handle upload avatar
       onUploadImage: function (oEvent) {
         const oFile = oEvent.getParameter("files")[0];
         const oAvatar = this.byId("avatar");
@@ -171,17 +172,19 @@ sap.ui.define(
 
       // Check email exists
       onValidateEmail: async function () {
-        const sEmail = this.byId("email1").getValue().trim();      
+        const sEmail = this.byId("email1").getValue().trim();
         const oModel = this.getOwnerComponent().getModel("EmployeeModel");
         let emailExists = false;
-      
+
         try {
-          const aContexts = await oModel.bindList("/Employees").requestContexts();
+          const aContexts = await oModel
+            .bindList("/Employees")
+            .requestContexts();
           const bExists = aContexts.some((oContext) => {
             const oEmp = oContext.getObject();
             return oEmp.email?.toLowerCase() === sEmail.toLowerCase();
           });
-      
+
           if (bExists) {
             this.byId("email1").setValueState("Error");
             this.byId("email1").setValueStateText("This email already exists.");
@@ -205,6 +208,7 @@ sap.ui.define(
       _validateRequiredFields: function () {
         const oView = this.getView();
         let bValid = true;
+        let value;
 
         const aFields = [
           oView.byId("name111"),
@@ -219,8 +223,12 @@ sap.ui.define(
 
         aFields.forEach(function (oField) {
           const sValue = oField.getValue?.() || oField.getSelectedKey?.();
+          // Trim the value if it’s a string
+          if (typeof sValue === "string") {
+            value = sValue.trim();
+          }
 
-          if (!sValue) {
+          if (!value) {
             oField.setValueState("Error");
             oField.setValueStateText("This field is required");
             bValid = false;
@@ -270,7 +278,7 @@ sap.ui.define(
         // Check email exist
         const checkMail = await this.onValidateEmail();
         if (!checkMail) {
-          return
+          return;
         }
 
         // Open confirmation dialog
